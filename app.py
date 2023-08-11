@@ -1,18 +1,19 @@
 import streamlit as st
 import requests
 from datetime import datetime, timedelta
-import os
 
 # Streamlit configuration
 st.set_page_config(page_title="Data Downloader", layout="wide")
 
-def download_data(start_datetime, end_datetime, save_path):
+def download_data(start_datetime, end_datetime):
     base_url = "http://opendata.kwater.or.kr/pubdata/kppm/kppm1Hr.do"
     date_format = "%Y%m%d%H"
     time_interval = timedelta(hours=3)
     
     start_dt = datetime.strptime(start_datetime, date_format)
     end_dt = datetime.strptime(end_datetime, date_format)
+
+    downloaded_files = []
 
     current_dt = start_dt
     while current_dt <= end_dt:
@@ -22,14 +23,16 @@ def download_data(start_datetime, end_datetime, save_path):
         
         response = requests.get(file_url)
         if response.status_code == 200:
-            file_path = os.path.join(save_path, filename)
-            with open(file_path, "wb") as file:
+            with open(filename, "wb") as file:
                 file.write(response.content)
+            downloaded_files.append(filename)
             st.write(f"Downloaded: {filename}")
         else:
             st.write(f"Failed to download: {filename}")
 
         current_dt += time_interval
+
+    return downloaded_files
 
 def main():
     st.title("Data Downloader")
@@ -40,15 +43,17 @@ def main():
     end_date = st.date_input("End Date")
     end_time = st.time_input("End Time")
     
-    default_save_path = os.getcwd()  # Default to the app's working directory
-    save_path = st.text_input("Save Path", value=default_save_path)
-    
     start_datetime = f"{start_date.strftime('%Y%m%d')}{start_time.strftime('%H')}"
     end_datetime = f"{end_date.strftime('%Y%m%d')}{end_time.strftime('%H')}"
     
     if st.button("Download Data"):
-        download_data(start_datetime, end_datetime, save_path)
-        st.success("Download completed!")
+        downloaded_files = download_data(start_datetime, end_datetime)
+        if downloaded_files:
+            st.success("Download completed!")
+
+            st.write("Downloaded Files:")
+            for filename in downloaded_files:
+                st.download_button(label=filename, data=open(filename, 'rb').read(), file_name=filename)
 
 if __name__ == "__main__":
     main()
