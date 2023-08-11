@@ -13,8 +13,6 @@ def download_data(start_datetime, end_datetime):
     start_dt = datetime.strptime(start_datetime, date_format)
     end_dt = datetime.strptime(end_datetime, date_format)
 
-    downloaded_files = []
-
     current_dt = start_dt
     while current_dt <= end_dt:
         formatted_dt = current_dt.strftime(date_format)
@@ -25,14 +23,11 @@ def download_data(start_datetime, end_datetime):
         if response.status_code == 200:
             with open(filename, "wb") as file:
                 file.write(response.content)
-            downloaded_files.append(filename)
             st.write(f"Downloaded: {filename}")
         else:
             st.write(f"Failed to download: {filename}")
 
         current_dt += time_interval
-
-    return downloaded_files
 
 def main():
     st.title("Data Downloader")
@@ -47,13 +42,8 @@ def main():
     end_datetime = f"{end_date.strftime('%Y%m%d')}{end_time.strftime('%H')}"
     
     if st.button("Download Data"):
-        downloaded_files = download_data(start_datetime, end_datetime)
-        if downloaded_files:
-            st.success("Download completed!")
-
-            st.write("Downloaded Files:")
-            for filename in downloaded_files:
-                st.download_button(label=filename, data=open(filename, 'rb').read(), file_name=filename)
+        download_data(start_datetime, end_datetime)
+        st.success("Download completed!")
 
 if __name__ == "__main__":
     main()
