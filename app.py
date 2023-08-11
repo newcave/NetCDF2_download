@@ -54,10 +54,7 @@ def main():
 
             st.write("Downloaded Files:")
             for filename in downloaded_files:
-                #st.markdown(f"Download [**{filename}**](https://github.com/newcave/NetCDF2_download/blob/main/data/{filename})")
                 st.markdown(f"Download [**{filename}**](https://github.com/newcave/NetCDF2_download/blob/main/data/{filename})")
-
-
 
 if __name__ == "__main__":
     main()
