@@ -1,11 +1,12 @@
 import streamlit as st
 import requests
 from datetime import datetime, timedelta
+import os  # 추가된 import
 
 # Streamlit configuration
 st.set_page_config(page_title="Data Downloader", layout="wide")
 
-def download_data(start_datetime, end_datetime):
+def download_data(start_datetime, end_datetime, save_path):
     base_url = "http://opendata.kwater.or.kr/pubdata/kppm/kppm1Hr.do"
     date_format = "%Y%m%d%H"
     time_interval = timedelta(hours=3)
@@ -21,7 +22,8 @@ def download_data(start_datetime, end_datetime):
         
         response = requests.get(file_url)
         if response.status_code == 200:
-            with open(filename, "wb") as file:
+            file_path = os.path.join(save_path, filename)  # 로컬 저장 경로 추가
+            with open(file_path, "wb") as file:
                 file.write(response.content)
             st.write(f"Downloaded: {filename}")
         else:
@@ -38,11 +40,13 @@ def main():
     end_date = st.date_input("End Date")
     end_time = st.time_input("End Time")
     
+    save_path = st.text_input("Save Path", value=os.getcwd())  # 로컬 저장 경로 입력란
+    
     start_datetime = f"{start_date.strftime('%Y%m%d')}{start_time.strftime('%H')}"
     end_datetime = f"{end_date.strftime('%Y%m%d')}{end_time.strftime('%H')}"
     
     if st.button("Download Data"):
-        download_data(start_datetime, end_datetime)
+        download_data(start_datetime, end_datetime, save_path)
         st.success("Download completed!")
 
 if __name__ == "__main__":
