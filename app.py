@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 from datetime import datetime, timedelta
+import os
 
 # Streamlit configuration
 st.set_page_config(page_title="Data Downloader", layout="wide")
@@ -13,6 +14,8 @@ def download_data(start_datetime, end_datetime):
     start_dt = datetime.strptime(start_datetime, date_format)
     end_dt = datetime.strptime(end_datetime, date_format)
 
+    files_to_download = []
+
     current_dt = start_dt
     while current_dt <= end_dt:
         formatted_dt = current_dt.strftime(date_format)
@@ -23,11 +26,14 @@ def download_data(start_datetime, end_datetime):
         if response.status_code == 200:
             with open(filename, "wb") as file:
                 file.write(response.content)
+            files_to_download.append(filename)
             st.write(f"Downloaded: {filename}")
         else:
             st.write(f"Failed to download: {filename}")
 
         current_dt += time_interval
+
+    return files_to_download
 
 def main():
     st.title("Data Downloader")
@@ -42,8 +48,13 @@ def main():
     end_datetime = f"{end_date.strftime('%Y%m%d')}{end_time.strftime('%H')}"
     
     if st.button("Download Data"):
-        download_data(start_datetime, end_datetime)
-        st.success("Download completed!")
+        downloaded_files = download_data(start_datetime, end_datetime)
+        if downloaded_files:
+            st.success("Download completed!")
+
+            st.write("Downloaded Files:")
+            for filename in downloaded_files:
+                st.markdown(f"Download [**{filename}**](https://raw.githubusercontent.com/newcave/NetCDF2_download/data/{filename})")
 
 if __name__ == "__main__":
     main()
