@@ -40,7 +40,7 @@ def main():
     end_date = st.date_input("End Date")
     end_time = st.time_input("End Time")
     
-    default_save_path = os.path.expanduser("~")  # Default to user's home directory
+    default_save_path = os.getcwd()  # Default to the app's working directory
     save_path = st.text_input("Save Path", value=default_save_path)
     
     start_datetime = f"{start_date.strftime('%Y%m%d')}{start_time.strftime('%H')}"
