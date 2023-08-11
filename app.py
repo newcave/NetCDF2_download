@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 from datetime import datetime, timedelta
-import os  # 추가된 import
+import os
 
 # Streamlit configuration
 st.set_page_config(page_title="Data Downloader", layout="wide")
@@ -22,7 +22,7 @@ def download_data(start_datetime, end_datetime, save_path):
         
         response = requests.get(file_url)
         if response.status_code == 200:
-            file_path = os.path.join(save_path, filename)  # 로컬 저장 경로 추가
+            file_path = os.path.join(save_path, filename)
             with open(file_path, "wb") as file:
                 file.write(response.content)
             st.write(f"Downloaded: {filename}")
@@ -40,7 +40,8 @@ def main():
     end_date = st.date_input("End Date")
     end_time = st.time_input("End Time")
     
-    save_path = st.text_input("Save Path", value=os.getcwd())  # 로컬 저장 경로 입력란
+    default_save_path = os.path.expanduser("~")  # Default to user's home directory
+    save_path = st.text_input("Save Path", value=default_save_path)
     
     start_datetime = f"{start_date.strftime('%Y%m%d')}{start_time.strftime('%H')}"
     end_datetime = f"{end_date.strftime('%Y%m%d')}{end_time.strftime('%H')}"
